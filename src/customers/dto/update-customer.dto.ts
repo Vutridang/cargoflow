@@ -1,39 +1,8 @@
-import {
-  IsEmail,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
+import { CreateCustomerDto } from './create-customer.dto';
 
-export class UpdateCustomerDto {
-  @IsOptional()
-  @IsString()
-  customerCode?: string;
-
-  @IsOptional()
-  @IsString()
-  companyName?: string;
-
-  @IsOptional()
-  @IsString()
-  contactName?: string;
-
-  @IsOptional()
-  @IsString()
-  phone?: string;
-
-  @IsOptional()
-  @IsEmail()
-  email?: string;
-
-  @IsOptional()
-  @IsString()
-  taxCode?: string;
-
-  @IsOptional()
-  @IsString()
-  address?: string;
-
-  @IsOptional()
-  @IsString()
-  status?: string;
-}
+// Make all remaining fields optional
+export class UpdateCustomerDto extends PartialType(
+  // Exclude customerCode from the update DTO
+  OmitType(CreateCustomerDto, ['customerCode'] as const),
+) {}
