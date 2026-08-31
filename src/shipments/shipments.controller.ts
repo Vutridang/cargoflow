@@ -11,6 +11,7 @@ import {
 import { ShipmentsService } from './shipments.service';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentDto } from './dto/update-shipment.dto';
+import { UpdateShipmentStatusDto } from './dto/update-shipment-status.dto';
 
 @Controller('shipments')
 export class ShipmentsController {
@@ -37,6 +38,17 @@ export class ShipmentsController {
     @Body() updateShipmentDto: UpdateShipmentDto,
   ) {
     return this.shipmentsService.update(id, updateShipmentDto);
+  }
+
+  @Patch(':id/status')
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateShipmentStatusDto: UpdateShipmentStatusDto,
+  ) {
+    return this.shipmentsService.updateStatus(
+      id,
+      updateShipmentStatusDto.status,
+    );
   }
 
   @Delete(':id')

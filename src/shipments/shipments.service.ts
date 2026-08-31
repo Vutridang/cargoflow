@@ -6,7 +6,11 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Shipment, ShipmentDocument } from './schemas/shipment.schema';
+import {
+  Shipment,
+  ShipmentDocument,
+  ShipmentStatus,
+} from './schemas/shipment.schema';
 
 import {
   Customer,
@@ -67,7 +71,7 @@ export class ShipmentsService {
     if (!warehouse) {
       throw new NotFoundException('Warehouse not found');
     }
-    
+
     const shipment = new this.shipmentModel(createShipmentDto);
 
     return await shipment.save();
@@ -99,6 +103,18 @@ export class ShipmentsService {
     }
 
     return shipment;
+  }
+
+  async updateStatus(id: string, status: ShipmentStatus) {
+    const shipment = await this.shipmentModel.findById(id).exec();
+
+    if (!shipment) {
+      throw new NotFoundException('Shipment not found');
+    }
+
+    shipment.status = status;
+
+    return await shipment.save();
   }
 
   async remove(id: string) {

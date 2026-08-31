@@ -3,6 +3,15 @@ import { HydratedDocument, Types } from 'mongoose';
 
 export type ShipmentDocument = HydratedDocument<Shipment>;
 
+export enum ShipmentStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  ASSIGNED = 'ASSIGNED',
+  IN_TRANSIT = 'IN_TRANSIT',
+  DELIVERED = 'DELIVERED',
+  CANCELLED = 'CANCELLED',
+}
+
 @Schema({ timestamps: true })
 export class Shipment {
   @Prop({
@@ -56,9 +65,12 @@ export class Shipment {
   pricing: Record<string, unknown>;
 
   @Prop({
+    equired: true,
     type: String,
+    enum: Object.values(ShipmentStatus),
+    default: ShipmentStatus.PENDING,
   })
-  status: string;
+  status: ShipmentStatus;
 }
 
 export const ShipmentSchema = SchemaFactory.createForClass(Shipment);
