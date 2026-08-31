@@ -43,6 +43,26 @@ export class ShipmentsService {
     private readonly warehouseModel: Model<WarehouseDocument>,
   ) {}
 
+  allowedTransitions: Record<ShipmentStatus, ShipmentStatus[]> = {
+    [ShipmentStatus.PENDING]: [
+      ShipmentStatus.CONFIRMED,
+      ShipmentStatus.CANCELLED,
+    ],
+
+    [ShipmentStatus.CONFIRMED]: [
+      ShipmentStatus.ASSIGNED,
+      ShipmentStatus.CANCELLED,
+    ],
+
+    [ShipmentStatus.ASSIGNED]: [ShipmentStatus.IN_TRANSIT],
+
+    [ShipmentStatus.IN_TRANSIT]: [ShipmentStatus.DELIVERED],
+
+    [ShipmentStatus.DELIVERED]: [ShipmentStatus.CANCELLED],
+
+    [ShipmentStatus.CANCELLED]: [],
+  };
+
   async create(createShipmentDto: CreateShipmentDto) {
     const customer = await this.customerModel
       .findById(createShipmentDto.customerId)
@@ -110,6 +130,14 @@ export class ShipmentsService {
 
     if (!shipment) {
       throw new NotFoundException('Shipment not found');
+    }
+
+    const allowedStatuses = this.allowedTransitions[shipment.status];
+
+    if (!allowedStatuses.includes(status)) {
+      throw new BadRequestException(
+        `Cannot change shipment status from ${shipment.status} to ${status}`,
+      );
     }
 
     shipment.status = status;
