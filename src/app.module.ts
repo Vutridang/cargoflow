@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CustomersModule } from './customers/customers.module';
+import { ShipmentsModule } from './shipments/shipments.module';
+import { UsersModule } from './users/users.module';
+import { WarehousesModule } from './warehouses/warehouses.module';
 
 @Module({
   imports: [
@@ -14,6 +17,12 @@ import { CustomersModule } from './customers/customers.module';
     MongooseModule.forRoot(process.env.MONGO_URI as string),
 
     CustomersModule,
+
+    ShipmentsModule,
+
+    UsersModule,
+
+    WarehousesModule,
   ],
 })
 export class AppModule {}

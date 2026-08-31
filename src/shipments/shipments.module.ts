@@ -3,18 +3,39 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Shipment, ShipmentSchema } from './schemas/shipment.schema';
 import { ShipmentsController } from './shipments.controller';
 import { ShipmentsService } from './shipments.service';
+import {
+  Customer,
+  CustomerSchema,
+} from 'src/customers/schemas/customer.schema';
+import { User, UserSchema } from 'src/users/schemas/user.schema';
+import {
+  Warehouse,
+  WarehouseSchema,
+} from 'src/warehouses/schemas/warehouse.schema';
 
 @Module({
-    imports: [
-         // Register the Shipment model so this module can interact with the shipment collection.
-        MongooseModule.forFeature([
-          {
-            name: Shipment.name,
-            schema: ShipmentSchema,
-          },
-        ]),
-      ],
-      controllers: [ShipmentsController],
-      providers: [ShipmentsService],
+  imports: [
+    // Register the Shipment model so this module can interact with the shipment collection.
+    MongooseModule.forFeature([
+      {
+        name: Shipment.name,
+        schema: ShipmentSchema,
+      },
+      {
+        name: Customer.name,
+        schema: CustomerSchema,
+      },
+      {
+        name: User.name,
+        schema: UserSchema,
+      },
+      {
+        name: Warehouse.name,
+        schema: WarehouseSchema,
+      },
+    ]),
+  ],
+  controllers: [ShipmentsController],
+  providers: [ShipmentsService],
 })
 export class ShipmentsModule {}
