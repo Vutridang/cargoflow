@@ -1,4 +1,7 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -13,8 +16,8 @@ import { UpdateShipmentItemDto } from './dto/update-shipment-item.dto';
 import {
   Shipment,
   ShipmentDocument,
-  ShipmentStatus,
 } from 'src/shipments/schemas/shipment.schema';
+import { validateShipmentEditable } from 'src/common/helpers/shipment-status.helper';
 
 @Injectable()
 export class ShipmentItemsService {
@@ -34,13 +37,7 @@ export class ShipmentItemsService {
       throw new NotFoundException('Shipment not found');
     }
 
-    const allowedStatuses = [ShipmentStatus.PENDING, ShipmentStatus.CONFIRMED];
-
-    if (!allowedStatuses.includes(shipment.status)) {
-      throw new BadRequestException(
-        `Cannot add item to shipment with status ${shipment.status}`,
-      );
-    }
+    validateShipmentEditable(shipment.status, 'add item');
 
     const shipmentItem = new this.shipmentItemModel(createShipmentItemDto);
 
@@ -72,6 +69,16 @@ export class ShipmentItemsService {
       throw new NotFoundException('Shipment item not found');
     }
 
+    const shipment = await this.shipmentModel
+      .findById(shipmentItem.shipmentId)
+      .exec();
+
+    if (!shipment) {
+      throw new NotFoundException('Shipment not found');
+    }
+
+    validateShipmentEditable(shipment.status, 'update item');
+
     return shipmentItem;
   }
 
@@ -83,6 +90,16 @@ export class ShipmentItemsService {
     if (!shipmentItem) {
       throw new NotFoundException('Shipment item not found');
     }
+
+    const shipment = await this.shipmentModel
+      .findById(shipmentItem.shipmentId)
+      .exec();
+
+    if (!shipment) {
+      throw new NotFoundException('Shipment not found');
+    }
+
+    validateShipmentEditable(shipment.status, 'delete item');
 
     return {
       message: 'Shipment item deleted successfully',
