@@ -11,6 +11,7 @@ import {
   Shipment,
   ShipmentSchema,
 } from 'src/shipments/schemas/shipment.schema';
+import { Package, PackageSchema } from 'src/packages/schemas/package.schema';
 
 @Module({
   imports: [
@@ -22,6 +23,10 @@ import {
       {
         name: Shipment.name,
         schema: ShipmentSchema,
+      },
+      {
+        name: Package.name,
+        schema: PackageSchema,
       },
     ]),
   ],

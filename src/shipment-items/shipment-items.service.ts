@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -18,6 +15,7 @@ import {
   ShipmentDocument,
 } from 'src/shipments/schemas/shipment.schema';
 import { validateShipmentEditable } from 'src/common/helpers/shipment-status.helper';
+import { Package, PackageDocument } from 'src/packages/schemas/package.schema';
 
 @Injectable()
 export class ShipmentItemsService {
@@ -26,6 +24,8 @@ export class ShipmentItemsService {
     private readonly shipmentItemModel: Model<ShipmentItemDocument>,
     @InjectModel(Shipment.name)
     private readonly shipmentModel: Model<ShipmentDocument>,
+    @InjectModel(Package.name)
+    private readonly packageModel: Model<PackageDocument>,
   ) {}
 
   async create(createShipmentItemDto: CreateShipmentItemDto) {
@@ -83,9 +83,7 @@ export class ShipmentItemsService {
   }
 
   async remove(id: string) {
-    const shipmentItem = await this.shipmentItemModel
-      .findByIdAndDelete(id)
-      .exec();
+    const shipmentItem = await this.shipmentItemModel.findById(id).exec();
 
     if (!shipmentItem) {
       throw new NotFoundException('Shipment item not found');
@@ -101,8 +99,16 @@ export class ShipmentItemsService {
 
     validateShipmentEditable(shipment.status, 'delete item');
 
+    // Delete all packages belonging to this shipment item
+    await this.packageModel.deleteMany({
+      shipmentItemId: shipmentItem._id,
+    });
+
+    // Delete shipment item
+    await shipmentItem.deleteOne();
+
     return {
-      message: 'Shipment item deleted successfully',
+      message: 'Shipment item and related packages deleted successfully',
     };
   }
 }
