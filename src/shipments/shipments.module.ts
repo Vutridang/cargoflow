@@ -12,6 +12,8 @@ import {
   Warehouse,
   WarehouseSchema,
 } from 'src/warehouses/schemas/warehouse.schema';
+import { Package, PackageSchema } from 'src/packages/schemas/package.schema';
+import { ShipmentItem, ShipmentItemSchema } from 'src/shipment-items/schemas/shipment-item.schema';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import {
         name: Warehouse.name,
         schema: WarehouseSchema,
       },
+      { name: ShipmentItem.name, schema: ShipmentItemSchema },
+      { name: Package.name, schema: PackageSchema },
     ]),
   ],
   controllers: [ShipmentsController],

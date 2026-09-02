@@ -26,6 +26,9 @@ import {
 
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentDto } from './dto/update-shipment.dto';
+import { validateShipmentEditable } from 'src/common/helpers/shipment-status.helper';
+import { Package, PackageDocument } from 'src/packages/schemas/package.schema';
+import { ShipmentItem, ShipmentItemDocument } from 'src/shipment-items/schemas/shipment-item.schema';
 
 @Injectable()
 export class ShipmentsService {
@@ -38,6 +41,12 @@ export class ShipmentsService {
 
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
+
+    @InjectModel(ShipmentItem.name)
+    private readonly shipmentItemModel: Model<ShipmentItemDocument>,
+
+    @InjectModel(Package.name)
+    private readonly packageModel: Model<PackageDocument>,
 
     @InjectModel(Warehouse.name)
     private readonly warehouseModel: Model<WarehouseDocument>,
@@ -122,6 +131,8 @@ export class ShipmentsService {
       throw new NotFoundException('Shipment not found');
     }
 
+    validateShipmentEditable(shipment.status, 'update item');
+
     return shipment;
   }
 
@@ -146,14 +157,39 @@ export class ShipmentsService {
   }
 
   async remove(id: string) {
-    const shipment = await this.shipmentModel.findByIdAndDelete(id).exec();
+    const shipment = await this.shipmentModel.findById(id).exec();
 
     if (!shipment) {
       throw new NotFoundException('Shipment not found');
     }
 
+    validateShipmentEditable(shipment.status, 'delete item');
+
+    // Find all shipment items belonging to this shipment
+    const shipmentItems = await this.shipmentItemModel
+      .find({ shipmentId: shipment._id.toString() })
+      .select('_id')
+      .exec();
+
+    const shipmentItemIds = shipmentItems.map((item) => item._id.toString());
+
+    // Delete all packages belonging to those shipment items
+    if (shipmentItemIds.length > 0) {
+      await this.packageModel.deleteMany({
+        shipmentItemId: { $in: shipmentItemIds },
+      });
+    }
+
+    // Delete all shipment items
+    await this.shipmentItemModel.deleteMany({
+      shipmentId: shipment._id.toString(),
+    });
+
+    // Delete shipment
+    await shipment.deleteOne();
+
     return {
-      message: 'Shipment deleted successfully',
+      message: 'Shipment and related items and packages deleted successfully',
     };
   }
 }
