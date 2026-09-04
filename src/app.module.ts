@@ -6,6 +6,7 @@ import { ShipmentsModule } from './shipments/shipments.module';
 import { UsersModule } from './users/users.module';
 import { WarehousesModule } from './warehouses/warehouses.module';
 import { ShipmentItemsModule } from './shipment-items/shipment-items.module';
+import { PackagesModule } from './packages/packages.module';
 
 @Module({
   imports: [
@@ -26,6 +27,8 @@ import { ShipmentItemsModule } from './shipment-items/shipment-items.module';
     WarehousesModule,
 
     ShipmentItemsModule,
+
+    PackagesModule,
   ],
 })
 export class AppModule {}
