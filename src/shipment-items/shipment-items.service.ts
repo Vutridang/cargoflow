@@ -101,7 +101,7 @@ export class ShipmentItemsService {
 
     // Delete all packages belonging to this shipment item
     await this.packageModel.deleteMany({
-      shipmentItemId: shipmentItem._id,
+      shipmentItemId: shipmentItem._id.toString(),
     });
 
     // Delete shipment item
