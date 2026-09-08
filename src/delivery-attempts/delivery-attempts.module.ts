@@ -13,12 +13,14 @@ import {
   Shipment,
   ShipmentSchema,
 } from 'src/shipments/schemas/shipment.schema';
+import { ProofOfDelivery, ProofOfDeliverySchema } from 'src/proof-of-delivery/schemas/proof-of-delivery.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: DeliveryAttempt.name, schema: DeliveryAttemptSchema },
       { name: Shipment.name, schema: ShipmentSchema },
+      { name: ProofOfDelivery.name, schema: ProofOfDeliverySchema },
     ]),
   ],
   controllers: [DeliveryAttemptsController],

@@ -43,6 +43,9 @@ export class DeliveryAttempt {
 
   @Prop({ type: String })
   note?: string;
+
+  @Prop({ type: Date })
+  updatedAt?: Date;
 }
 
 export const DeliveryAttemptSchema =

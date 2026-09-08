@@ -19,6 +19,7 @@ import {
 } from 'src/shipments/schemas/shipment.schema';
 
 import { CreateDeliveryAttemptDto } from './dto/create-delivery-attempt.dto';
+import { ProofOfDeliveryDocument } from 'src/proof-of-delivery/schemas/proof-of-delivery.schema';
 
 @Injectable()
 export class DeliveryAttemptsService {
@@ -28,6 +29,9 @@ export class DeliveryAttemptsService {
 
     @InjectModel(Shipment.name)
     private readonly shipmentModel: Model<ShipmentDocument>,
+
+    @InjectModel(Shipment.name)
+    private readonly proofOfDeliveryModel: Model<ProofOfDeliveryDocument>,
   ) {}
 
   async create(createDeliveryAttemptDto: CreateDeliveryAttemptDto) {
@@ -76,8 +80,22 @@ export class DeliveryAttemptsService {
       throw new NotFoundException('Delivery attempt not found');
     }
 
+    if (deliveryAttempt.status !== DeliveryAttemptStatus.DELIVERY) {
+      throw new BadRequestException(
+        `Cannot change delivery attempt status from ${deliveryAttempt.status}`,
+      );
+    }
+
     deliveryAttempt.status = status;
 
-    return await deliveryAttempt.save();
+    const updatedDeliveryAttempt = await deliveryAttempt.save();
+
+    // if (status === DeliveryAttemptStatus.SUCCESS) {
+    //   await this.proofOfDeliveryModel.create({
+    //     deliveryAttemptId: deliveryAttempt._id,
+    //   });
+    // }
+
+    return updatedDeliveryAttempt;
   }
 }
