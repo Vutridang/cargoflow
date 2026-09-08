@@ -9,6 +9,7 @@ import { ShipmentItemsModule } from './shipment-items/shipment-items.module';
 import { PackagesModule } from './packages/packages.module';
 import { DeliveryAttemptsModule } from './delivery-attempts/delivery-attempts.module';
 import { ProofOfDeliveriesModule } from './proof-of-delivery/proof-of-delivery.module';
+import { VehiclesModule } from './vehicles/vehicles.module';
 
 @Module({
   imports: [
@@ -35,6 +36,8 @@ import { ProofOfDeliveriesModule } from './proof-of-delivery/proof-of-delivery.m
     DeliveryAttemptsModule,
 
     ProofOfDeliveriesModule,
+
+    VehiclesModule
   ],
 })
 export class AppModule {}
