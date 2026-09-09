@@ -11,6 +11,8 @@ import { DeliveryAttemptsModule } from './delivery-attempts/delivery-attempts.mo
 import { ProofOfDeliveriesModule } from './proof-of-delivery/proof-of-delivery.module';
 import { VehiclesModule } from './vehicles/vehicles.module';
 import { DriversModule } from './drivers/drivers.module';
+import { TripsModule } from './trips/trips.module';
+import { TripShipmentsModule } from './trip-shipments/trip-shipments.module';
 
 @Module({
   imports: [
@@ -40,7 +42,11 @@ import { DriversModule } from './drivers/drivers.module';
 
     VehiclesModule,
 
-    DriversModule
+    DriversModule,
+
+    TripsModule,
+
+    TripShipmentsModule
   ],
 })
 export class AppModule {}
