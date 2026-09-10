@@ -13,6 +13,8 @@ import { VehiclesModule } from './vehicles/vehicles.module';
 import { DriversModule } from './drivers/drivers.module';
 import { TripsModule } from './trips/trips.module';
 import { TripShipmentsModule } from './trip-shipments/trip-shipments.module';
+import { TrackingHistoriesModule } from './tracking-histories/tracking-histories.module';
+
 
 @Module({
   imports: [
@@ -46,7 +48,9 @@ import { TripShipmentsModule } from './trip-shipments/trip-shipments.module';
 
     TripsModule,
 
-    TripShipmentsModule
+    TripShipmentsModule,
+
+    TrackingHistoriesModule
   ],
 })
 export class AppModule {}
