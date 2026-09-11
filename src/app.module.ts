@@ -14,6 +14,7 @@ import { DriversModule } from './drivers/drivers.module';
 import { TripsModule } from './trips/trips.module';
 import { TripShipmentsModule } from './trip-shipments/trip-shipments.module';
 import { TrackingHistoriesModule } from './tracking-histories/tracking-histories.module';
+import { RolesModule } from './roles/roles.module';
 
 
 @Module({
@@ -50,7 +51,9 @@ import { TrackingHistoriesModule } from './tracking-histories/tracking-histories
 
     TripShipmentsModule,
 
-    TrackingHistoriesModule
+    TrackingHistoriesModule,
+
+    RolesModule
   ],
 })
 export class AppModule {}
