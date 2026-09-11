@@ -14,6 +14,7 @@ import {
 } from 'src/warehouses/schemas/warehouse.schema';
 import { Package, PackageSchema } from 'src/packages/schemas/package.schema';
 import { ShipmentItem, ShipmentItemSchema } from 'src/shipment-items/schemas/shipment-item.schema';
+import { TrackingHistoriesModule } from 'src/tracking-histories/tracking-histories.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ShipmentItem, ShipmentItemSchema } from 'src/shipment-items/schemas/shi
       { name: ShipmentItem.name, schema: ShipmentItemSchema },
       { name: Package.name, schema: PackageSchema },
     ]),
+    TrackingHistoriesModule
   ],
   controllers: [ShipmentsController],
   providers: [ShipmentsService],

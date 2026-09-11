@@ -13,6 +13,8 @@ export function validateShipmentEditable(
   const allowedStatuses = [
     ShipmentStatus.PENDING,
     ShipmentStatus.CONFIRMED,
+    ShipmentStatus.DELIVERED,
+    ShipmentStatus.CANCELLED,
   ];
 
   if (!allowedStatuses.includes(status)) {

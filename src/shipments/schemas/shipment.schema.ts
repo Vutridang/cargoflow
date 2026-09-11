@@ -12,6 +12,11 @@ export enum ShipmentStatus {
   CANCELLED = 'CANCELLED',
 }
 
+interface ShipmentLocation {
+  address: string;
+  scheduledAt: Date;
+}
+
 @Schema({ timestamps: true })
 export class Shipment {
   @Prop({
@@ -52,12 +57,12 @@ export class Shipment {
   @Prop({
     type: Object,
   })
-  pickup: Record<string, unknown>;
+  pickup: ShipmentLocation;
 
   @Prop({
     type: Object,
   })
-  delivery: Record<string, unknown>;
+  delivery: ShipmentLocation;
 
   @Prop({
     type: Object,

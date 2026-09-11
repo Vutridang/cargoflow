@@ -28,7 +28,13 @@ import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentDto } from './dto/update-shipment.dto';
 import { validateShipmentEditable } from 'src/common/helpers/shipment-status.helper';
 import { Package, PackageDocument } from 'src/packages/schemas/package.schema';
-import { ShipmentItem, ShipmentItemDocument } from 'src/shipment-items/schemas/shipment-item.schema';
+import {
+  ShipmentItem,
+  ShipmentItemDocument,
+} from 'src/shipment-items/schemas/shipment-item.schema';
+
+import { TrackingHistoriesService } from 'src/tracking-histories/tracking-histories.service';
+import { buildTrackingInfo } from 'src/common/helpers/tracking-history.helper';
 
 @Injectable()
 export class ShipmentsService {
@@ -50,6 +56,8 @@ export class ShipmentsService {
 
     @InjectModel(Warehouse.name)
     private readonly warehouseModel: Model<WarehouseDocument>,
+
+    private readonly trackingHistoriesService: TrackingHistoriesService,
   ) {}
 
   allowedTransitions: Record<ShipmentStatus, ShipmentStatus[]> = {
@@ -67,7 +75,7 @@ export class ShipmentsService {
 
     [ShipmentStatus.IN_TRANSIT]: [ShipmentStatus.DELIVERED],
 
-    [ShipmentStatus.DELIVERED]: [ShipmentStatus.CANCELLED],
+    [ShipmentStatus.DELIVERED]: [],
 
     [ShipmentStatus.CANCELLED]: [],
   };
@@ -137,11 +145,16 @@ export class ShipmentsService {
   }
 
   async updateStatus(id: string, status: ShipmentStatus) {
-    const shipment = await this.shipmentModel.findById(id).exec();
+    const shipment = await this.shipmentModel
+      .findById(id)
+      .populate('warehouseId')
+      .exec();
 
     if (!shipment) {
       throw new NotFoundException('Shipment not found');
     }
+
+    const warehouseName = (shipment.warehouseId as any).name;
 
     const allowedStatuses = this.allowedTransitions[shipment.status];
 
@@ -153,7 +166,24 @@ export class ShipmentsService {
 
     shipment.status = status;
 
-    return await shipment.save();
+    const savedShipment = await shipment.save();
+
+    const { location, trackingNote } = buildTrackingInfo(
+      shipment,
+      status,
+      warehouseName,
+    );
+
+    await this.trackingHistoriesService.create({
+      shipmentId: shipment._id,
+      userId: shipment.createdBy,
+      status,
+      location,
+      trackingNote,
+      updatedBy: shipment.createdBy,
+    });
+
+    return savedShipment;
   }
 
   async remove(id: string) {
@@ -184,6 +214,11 @@ export class ShipmentsService {
     await this.shipmentItemModel.deleteMany({
       shipmentId: shipment._id.toString(),
     });
+
+    // Delete all tracking histories
+    await this.trackingHistoriesService.deleteByShipment(
+      shipment._id.toString(),
+    );
 
     // Delete shipment
     await shipment.deleteOne();

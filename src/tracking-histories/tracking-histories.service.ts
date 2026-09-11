@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import {
   TrackingHistory,
@@ -15,13 +15,23 @@ export class TrackingHistoriesService {
   ) {}
 
   async create(data: Partial<TrackingHistory>) {
-    return await this.trackingHistoryModel.create(data);
+    const trackingHistory = await this.trackingHistoryModel.create(data);
+
+    console.log('SAVED TRACKING HISTORY:', trackingHistory);
+
+    return trackingHistory;
   }
 
   async findByShipment(shipmentId: string) {
     return await this.trackingHistoryModel
-      .find({ shipmentId })
+      .find({ shipmentId: new Types.ObjectId(shipmentId) })
       .sort({ createdAt: 1 })
       .exec();
+  }
+
+  async deleteByShipment(shipmentId: string) {
+    return await this.trackingHistoryModel.deleteMany({
+      shipmentId: new Types.ObjectId(shipmentId),
+    });
   }
 }
