@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { AuditLog, AuditLogDocument } from './schemas/audit-logs.schema';
+import { buildSearchFilter } from 'src/common/helpers/search.helper';
 
 @Injectable()
 export class AuditLogsService {
@@ -27,12 +28,7 @@ export class AuditLogsService {
 
   async searchByResource(resource: string) {
     return await this.auditLogModel
-      .find({
-        resource: {
-          $regex: resource,
-          $options: 'i',
-        },
-      })
+      .find(buildSearchFilter('resource', resource))
       .sort({ createdAt: -1 })
       .exec();
   }

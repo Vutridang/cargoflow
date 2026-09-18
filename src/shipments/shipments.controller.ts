@@ -6,12 +6,14 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 
 import { ShipmentsService } from './shipments.service';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentDto } from './dto/update-shipment.dto';
 import { UpdateShipmentStatusDto } from './dto/update-shipment-status.dto';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('shipments')
 export class ShipmentsController {
@@ -23,8 +25,33 @@ export class ShipmentsController {
   }
 
   @Get()
-  findAll() {
-    return this.shipmentsService.findAll();
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    example: 10,
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+  })
+  findAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('search') search?: string,
+  ) {
+    return this.shipmentsService.findAll(
+      Number(page) || 1,
+      Number(limit) || 10,
+      search,
+    );
   }
 
   @Get(':id')

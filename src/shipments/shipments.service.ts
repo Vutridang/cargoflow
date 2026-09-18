@@ -37,6 +37,11 @@ import { TrackingHistoriesService } from 'src/tracking-histories/tracking-histor
 import { buildTrackingInfo } from 'src/common/helpers/tracking-history.helper';
 import { AuditLogsService } from 'src/audit-logs/audit-logs.service';
 import { buildAuditLog } from 'src/common/helpers/audit-log.helper';
+import {
+  buildPagination,
+  buildPaginationMeta,
+} from 'src/common/helpers/pagination.helper';
+import { buildSearchFilter } from 'src/common/helpers/search.helper';
 
 @Injectable()
 export class ShipmentsService {
@@ -129,8 +134,22 @@ export class ShipmentsService {
     return await shipment.save();
   }
 
-  async findAll() {
-    return await this.shipmentModel.find().exec();
+  async findAll(page = 1, limit = 10, search?: string) {
+
+    const filter = search ? buildSearchFilter('shipmentCode', search) : {};
+
+    const { skip } = buildPagination(page, limit);
+
+    const [shipments, total] = await Promise.all([
+      this.shipmentModel.find(filter).skip(skip).limit(limit).exec(),
+
+      this.shipmentModel.countDocuments().exec(),
+    ]);
+
+    return {
+      data: shipments,
+      meta: buildPaginationMeta(total, page, limit),
+    };
   }
 
   async findOne(id: string) {
