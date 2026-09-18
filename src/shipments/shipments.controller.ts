@@ -14,6 +14,7 @@ import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentDto } from './dto/update-shipment.dto';
 import { UpdateShipmentStatusDto } from './dto/update-shipment-status.dto';
 import { ApiQuery } from '@nestjs/swagger';
+import { ShipmentStatus } from './schemas/shipment.schema';
 
 @Controller('shipments')
 export class ShipmentsController {
@@ -54,12 +55,18 @@ export class ShipmentsController {
     enum: ['asc', 'desc'],
     example: 'desc',
   })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: ShipmentStatus,
+  })
   findAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('search') search?: string,
     @Query('sortBy') sortBy?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @Query('status') status?: ShipmentStatus,
   ) {
     return this.shipmentsService.findAll(
       Number(page) || 1,
@@ -67,6 +74,7 @@ export class ShipmentsController {
       search,
       sortBy || 'createdAt',
       sortOrder || 'desc',
+      status,
     );
   }
 

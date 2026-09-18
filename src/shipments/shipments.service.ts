@@ -43,6 +43,7 @@ import {
 } from 'src/common/helpers/pagination.helper';
 import { buildSearchFilter } from 'src/common/helpers/search.helper';
 import { buildSort } from 'src/common/helpers/sort.helper';
+import { buildFilter } from 'src/common/helpers/filter.helper';
 
 @Injectable()
 export class ShipmentsService {
@@ -141,8 +142,12 @@ export class ShipmentsService {
     search?: string,
     sortBy = 'createdAt',
     sortOrder: 'asc' | 'desc' = 'desc',
+    status?: ShipmentStatus,
   ) {
-    const filter = search ? buildSearchFilter('shipmentCode', search) : {};
+    const filter = buildFilter({
+      status,
+      ...buildSearchFilter('shipmentCode', search),
+    });
 
     const sort = buildSort(sortBy, sortOrder);
 
