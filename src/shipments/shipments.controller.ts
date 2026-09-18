@@ -42,15 +42,31 @@ export class ShipmentsController {
     required: false,
     type: String,
   })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    type: String,
+    example: 'createdAt',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    enum: ['asc', 'desc'],
+    example: 'desc',
+  })
   findAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
     return this.shipmentsService.findAll(
       Number(page) || 1,
       Number(limit) || 10,
       search,
+      sortBy || 'createdAt',
+      sortOrder || 'desc',
     );
   }
 

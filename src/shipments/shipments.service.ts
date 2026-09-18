@@ -42,6 +42,7 @@ import {
   buildPaginationMeta,
 } from 'src/common/helpers/pagination.helper';
 import { buildSearchFilter } from 'src/common/helpers/search.helper';
+import { buildSort } from 'src/common/helpers/sort.helper';
 
 @Injectable()
 export class ShipmentsService {
@@ -134,14 +135,21 @@ export class ShipmentsService {
     return await shipment.save();
   }
 
-  async findAll(page = 1, limit = 10, search?: string) {
-
+  async findAll(
+    page = 1,
+    limit = 10,
+    search?: string,
+    sortBy = 'createdAt',
+    sortOrder: 'asc' | 'desc' = 'desc',
+  ) {
     const filter = search ? buildSearchFilter('shipmentCode', search) : {};
+
+    const sort = buildSort(sortBy, sortOrder);
 
     const { skip } = buildPagination(page, limit);
 
     const [shipments, total] = await Promise.all([
-      this.shipmentModel.find(filter).skip(skip).limit(limit).exec(),
+      this.shipmentModel.find(filter).sort(sort).skip(skip).limit(limit).exec(),
 
       this.shipmentModel.countDocuments().exec(),
     ]);
