@@ -15,6 +15,7 @@ import { TripsModule } from './trips/trips.module';
 import { TripShipmentsModule } from './trip-shipments/trip-shipments.module';
 import { TrackingHistoriesModule } from './tracking-histories/tracking-histories.module';
 import { RolesModule } from './roles/roles.module';
+import { AuditLogsModule } from './audit-logs/audit-logs.module';
 
 
 @Module({
@@ -53,7 +54,9 @@ import { RolesModule } from './roles/roles.module';
 
     TrackingHistoriesModule,
 
-    RolesModule
+    RolesModule,
+
+    AuditLogsModule
   ],
 })
 export class AppModule {}

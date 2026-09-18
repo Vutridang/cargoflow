@@ -35,6 +35,8 @@ import {
 
 import { TrackingHistoriesService } from 'src/tracking-histories/tracking-histories.service';
 import { buildTrackingInfo } from 'src/common/helpers/tracking-history.helper';
+import { AuditLogsService } from 'src/audit-logs/audit-logs.service';
+import { buildAuditLog } from 'src/common/helpers/audit-log.helper';
 
 @Injectable()
 export class ShipmentsService {
@@ -58,6 +60,8 @@ export class ShipmentsService {
     private readonly warehouseModel: Model<WarehouseDocument>,
 
     private readonly trackingHistoriesService: TrackingHistoriesService,
+
+    private readonly auditLogsService: AuditLogsService,
   ) {}
 
   allowedTransitions: Record<ShipmentStatus, ShipmentStatus[]> = {
@@ -111,6 +115,17 @@ export class ShipmentsService {
 
     const shipment = new this.shipmentModel(createShipmentDto);
 
+    await this.auditLogsService.create(
+      buildAuditLog(
+        user._id,
+        'CREATE',
+        'SHIPMENT',
+        shipment._id,
+        undefined,
+        shipment.toObject(),
+      ),
+    );
+
     return await shipment.save();
   }
 
@@ -129,11 +144,7 @@ export class ShipmentsService {
   }
 
   async update(id: string, updateShipmentDto: UpdateShipmentDto) {
-    const shipment = await this.shipmentModel
-      .findByIdAndUpdate(id, updateShipmentDto, {
-        new: true,
-      })
-      .exec();
+    const shipment = await this.shipmentModel.findById(id).exec();
 
     if (!shipment) {
       throw new NotFoundException('Shipment not found');
@@ -141,7 +152,30 @@ export class ShipmentsService {
 
     validateShipmentEditable(shipment.status, 'update item');
 
-    return shipment;
+    const oldData = shipment.toObject();
+
+    Object.assign(shipment, updateShipmentDto);
+
+    const savedShipment = await shipment.save();
+
+    const user = await this.userModel.findById(shipment.createdBy).exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.auditLogsService.create(
+      buildAuditLog(
+        user._id,
+        'UPDATE',
+        'SHIPMENT',
+        shipment._id,
+        oldData,
+        savedShipment.toObject(),
+      ),
+    );
+
+    return savedShipment;
   }
 
   async updateStatus(id: string, status: ShipmentStatus) {
@@ -164,6 +198,10 @@ export class ShipmentsService {
       );
     }
 
+    const oldData = {
+      status: shipment.status,
+    };
+
     shipment.status = status;
 
     const savedShipment = await shipment.save();
@@ -183,6 +221,25 @@ export class ShipmentsService {
       updatedBy: shipment.createdBy,
     });
 
+    const user = await this.userModel.findById(shipment.createdBy).exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.auditLogsService.create(
+      buildAuditLog(
+        user._id,
+        'UPDATE_STATUS',
+        'SHIPMENT',
+        shipment._id,
+        oldData,
+        {
+          status: savedShipment.status,
+        },
+      ),
+    );
+
     return savedShipment;
   }
 
@@ -194,6 +251,12 @@ export class ShipmentsService {
     }
 
     validateShipmentEditable(shipment.status, 'delete item');
+
+    const user = await this.userModel.findById(shipment.createdBy).exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
     // Find all shipment items belonging to this shipment
     const shipmentItems = await this.shipmentItemModel
@@ -218,6 +281,18 @@ export class ShipmentsService {
     // Delete all tracking histories
     await this.trackingHistoriesService.deleteByShipment(
       shipment._id.toString(),
+    );
+
+    // Create audit log before deleting shipment
+    await this.auditLogsService.create(
+      buildAuditLog(
+        user._id,
+        'DELETE',
+        'SHIPMENT',
+        shipment._id,
+        shipment.toObject(),
+        undefined,
+      ),
     );
 
     // Delete shipment
