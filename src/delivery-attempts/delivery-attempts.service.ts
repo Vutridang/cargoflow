@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import {
   DeliveryAttempt,
@@ -49,9 +49,10 @@ export class DeliveryAttemptsService {
       );
     }
 
-    const deliveryAttempt = new this.deliveryAttemptModel(
-      createDeliveryAttemptDto,
-    );
+    const deliveryAttempt = new this.deliveryAttemptModel({
+      ...createDeliveryAttemptDto,
+      shipmentId: new Types.ObjectId(createDeliveryAttemptDto.shipmentId),
+    });
 
     return await deliveryAttempt.save();
   }
@@ -60,7 +61,7 @@ export class DeliveryAttemptsService {
     return await this.deliveryAttemptModel.find().exec();
   }
 
-  async findByShipmentId(shipmentId: string) {
+  async findByShipmentId(shipmentId: Types.ObjectId) {
     const shipment = await this.shipmentModel.findById(shipmentId).exec();
 
     if (!shipment) {

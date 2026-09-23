@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import {
   TripShipment,
@@ -66,7 +66,13 @@ export class TripShipmentsService {
       throw new BadRequestException('All shipments must be assigned');
     }
 
-    return await this.tripShipmentModel.create(createTripShipmentDto);
+    return await this.tripShipmentModel.create({
+      ...createTripShipmentDto,
+      tripId: new Types.ObjectId(createTripShipmentDto.tripId),
+      shipmentId: createTripShipmentDto.shipmentId.map(
+        (id) => new Types.ObjectId(id),
+      ),
+    });
   }
 
   async findAll() {

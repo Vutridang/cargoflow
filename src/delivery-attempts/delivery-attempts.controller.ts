@@ -4,6 +4,7 @@ import { DeliveryAttemptsService } from './delivery-attempts.service';
 
 import { CreateDeliveryAttemptDto } from './dto/create-delivery-attempt.dto';
 import { UpdateDeliveryAttemptStatusDto } from './dto/update-delivery-attempt-status.dto';
+import { Types } from 'mongoose';
 
 @Controller('delivery-attempts')
 export class DeliveryAttemptsController {
@@ -23,7 +24,7 @@ export class DeliveryAttemptsController {
 
   @Get('shipment/:shipmentId')
   findByShipmentId(@Param('shipmentId') shipmentId: string) {
-    return this.deliveryAttemptsService.findByShipmentId(shipmentId);
+    return this.deliveryAttemptsService.findByShipmentId(new Types.ObjectId(shipmentId),);
   }
 
   @Patch(':id/status')

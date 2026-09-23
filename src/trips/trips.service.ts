@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Trip, TripDocument, TripStatus } from './schemas/trip.schema';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
@@ -17,7 +17,11 @@ export class TripsService {
   ) {}
 
   async create(createTripDto: CreateTripDto) {
-    return await this.tripModel.create(createTripDto);
+    return await this.tripModel.create({
+      ...createTripDto,
+      vehicleId: new Types.ObjectId(createTripDto.vehicleId),
+      driverId: new Types.ObjectId(createTripDto.driverId),
+    });
   }
 
   async findAll() {
