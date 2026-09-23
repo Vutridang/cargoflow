@@ -311,11 +311,11 @@ export class ShipmentsService {
 
     // Find all shipment items belonging to this shipment
     const shipmentItems = await this.shipmentItemModel
-      .find({ shipmentId: shipment._id.toString() })
+      .find({ shipmentId: shipment._id })
       .select('_id')
       .exec();
 
-    const shipmentItemIds = shipmentItems.map((item) => item._id.toString());
+    const shipmentItemIds = shipmentItems.map((item) => item._id);
 
     // Delete all packages belonging to those shipment items
     if (shipmentItemIds.length > 0) {
@@ -326,12 +326,12 @@ export class ShipmentsService {
 
     // Delete all shipment items
     await this.shipmentItemModel.deleteMany({
-      shipmentId: shipment._id.toString(),
+      shipmentId: shipment._id,
     });
 
     // Delete all tracking histories
     await this.trackingHistoriesService.deleteByShipment(
-      shipment._id.toString(),
+      shipment._id,
     );
 
     // Create audit log before deleting shipment

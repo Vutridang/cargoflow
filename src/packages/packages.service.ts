@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { Package, PackageDocument } from './schemas/package.schema';
 
@@ -59,7 +59,10 @@ export class PackagesService {
     // Check shipment status
     validateShipmentEditable(shipment.status, 'add package');
 
-    const packageItem = new this.packageModel(createPackageDto);
+    const packageItem = new this.packageModel({
+      ...createPackageDto,
+      shipmentItemId: new Types.ObjectId(createPackageDto.shipmentItemId),
+    });
 
     return await packageItem.save();
   }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, ObjectId, Types } from 'mongoose';
 
 import {
   TrackingHistory,
@@ -29,9 +29,9 @@ export class TrackingHistoriesService {
       .exec();
   }
 
-  async deleteByShipment(shipmentId: string) {
+  async deleteByShipment(shipmentId: Types.ObjectId) {
     return await this.trackingHistoryModel.deleteMany({
-      shipmentId: new Types.ObjectId(shipmentId),
+      shipmentId,
     });
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import {
   ShipmentItem,
@@ -39,7 +39,10 @@ export class ShipmentItemsService {
 
     validateShipmentEditable(shipment.status, 'add item');
 
-    const shipmentItem = new this.shipmentItemModel(createShipmentItemDto);
+    const shipmentItem = new this.shipmentItemModel({
+      ...createShipmentItemDto,
+      shipmentId: new Types.ObjectId(createShipmentItemDto.shipmentId),
+    });
 
     return await shipmentItem.save();
   }
@@ -101,7 +104,7 @@ export class ShipmentItemsService {
 
     // Delete all packages belonging to this shipment item
     await this.packageModel.deleteMany({
-      shipmentItemId: shipmentItem._id.toString(),
+      shipmentItemId: shipmentItem._id,
     });
 
     // Delete shipment item
