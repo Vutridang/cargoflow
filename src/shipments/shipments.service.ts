@@ -127,19 +127,19 @@ export class ShipmentsService {
       createdBy: new Types.ObjectId(createShipmentDto.createdBy),
     });
 
-    // const { location, trackingNote } = buildTrackingInfo(
-    //   shipment,
-    //   shipment.status,
-    // );
+    const { location, trackingNote } = buildTrackingInfo(
+      shipment,
+      shipment.status,
+    );
 
-    // await this.trackingHistoriesService.create({
-    //   shipmentId: shipment._id,
-    //   userId: shipment.createdBy,
-    //   status: shipment.status,
-    //   location,
-    //   trackingNote,
-    //   updatedBy: shipment.createdBy,
-    // });
+    await this.trackingHistoriesService.create({
+      shipmentId: shipment._id,
+      userId: shipment.createdBy,
+      status: shipment.status,
+      location,
+      trackingNote,
+      updatedBy: shipment.createdBy,
+    });
 
     await this.auditLogsService.create(
       buildAuditLog(
