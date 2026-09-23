@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import {
   Shipment,
@@ -120,7 +120,26 @@ export class ShipmentsService {
       throw new NotFoundException('Warehouse not found');
     }
 
-    const shipment = new this.shipmentModel(createShipmentDto);
+    const shipment = new this.shipmentModel({
+      ...createShipmentDto,
+      customerId: new Types.ObjectId(createShipmentDto.customerId),
+      warehouseId: new Types.ObjectId(createShipmentDto.warehouseId),
+      createdBy: new Types.ObjectId(createShipmentDto.createdBy),
+    });
+
+    // const { location, trackingNote } = buildTrackingInfo(
+    //   shipment,
+    //   shipment.status,
+    // );
+
+    // await this.trackingHistoriesService.create({
+    //   shipmentId: shipment._id,
+    //   userId: shipment.createdBy,
+    //   status: shipment.status,
+    //   location,
+    //   trackingNote,
+    //   updatedBy: shipment.createdBy,
+    // });
 
     await this.auditLogsService.create(
       buildAuditLog(
