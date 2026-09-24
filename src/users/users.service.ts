@@ -5,18 +5,30 @@ import { Model, Types } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
+
+    @InjectModel(Role.name)
+    private readonly roleModel: Model<RoleDocument>,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    const customerRole = await this.roleModel
+      .findOne({ name: 'CUSTOMER' })
+      .exec();
+
+    if (!customerRole) {
+      throw new NotFoundException('CUSTOMER role not found');
+    }
+
     const user = new this.userModel({
       ...createUserDto,
-      roleId: new Types.ObjectId(createUserDto.roleId),
+      roleId: new Types.ObjectId(customerRole._id),
     });
 
     return await user.save();

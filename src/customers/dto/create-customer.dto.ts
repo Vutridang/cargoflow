@@ -19,8 +19,8 @@ export class CreateCustomerDto {
   contactName: string;
 
   @IsString()
-  @IsNotEmpty()
-  phone: string;
+  @IsOptional()
+  phone?: string;
 
   @IsOptional()
   @IsEmail()
@@ -33,4 +33,8 @@ export class CreateCustomerDto {
   @IsString()
   @IsNotEmpty()
   address: string;
+
+  @IsString()
+  @IsNotEmpty()
+  userId: string;
 }

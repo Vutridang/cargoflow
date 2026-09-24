@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { Customer, CustomerDocument } from './schemas/customer.schema';
 
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { User, UserDocument } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class CustomersService {
@@ -13,13 +14,27 @@ export class CustomersService {
     // Inject the Customer model so the service can interact with MongoDB.
     @InjectModel(Customer.name)
     private readonly customerModel: Model<CustomerDocument>,
+
+    @InjectModel(User.name)
+    private readonly userModel: Model<UserDocument>,
   ) {}
 
   async create(createCustomerDto: CreateCustomerDto) {
-    // Create a new Customer document from the validated DTO.
-    const customer = new this.customerModel(createCustomerDto);
+    const user = await this.userModel.findById(createCustomerDto.userId).exec();
 
-    return customer.save();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const customer = new this.customerModel({
+      ...createCustomerDto,
+      userId: new Types.ObjectId(user._id),
+      contactName: user.fullName,
+      email: user.email,
+      phone: user.phone,
+    });
+
+    return await customer.save();
   }
 
   async findAll() {
@@ -53,7 +68,7 @@ export class CustomersService {
 
   async remove(id: string) {
     const customer = await this.customerModel
-      .findByIdAndUpdate(id, { status: 'INACTIVE' }, { new: true },)
+      .findByIdAndUpdate(id, { status: 'INACTIVE' }, { new: true })
       .exec();
 
     if (!customer) {

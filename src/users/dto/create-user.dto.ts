@@ -22,7 +22,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   phone: string;
 
-  @IsMongoId()
-  @IsNotEmpty()
-  roleId: string;
+  // @IsMongoId()
+  // @IsNotEmpty()
+  // roleId: string;
 }
