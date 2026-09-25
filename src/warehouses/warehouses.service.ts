@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -17,6 +21,7 @@ import {
 } from 'src/common/helpers/pagination.helper';
 import { buildSearchFilter } from 'src/common/helpers/search.helper';
 import { buildSort } from 'src/common/helpers/sort.helper';
+import { UpdateWareHouseStatusDto } from './dto/update-warehouse-status.dto';
 
 @Injectable()
 export class WarehousesService {
@@ -87,6 +92,26 @@ export class WarehousesService {
     }
 
     return warehouse;
+  }
+
+  async updateStatus(id: string, status: WareHouseStatus) {
+    const wareHouse = await this.warehouseModel.findById(id).exec();
+
+    if (!wareHouse) {
+      throw new NotFoundException('Warehouse not found');
+    }
+
+    wareHouse.status = status;
+
+    const updateWareHouseStatus = await wareHouse.save();
+
+    // if (status === DeliveryAttemptStatus.SUCCESS) {
+    //   await this.proofOfDeliveryModel.create({
+    //     deliveryAttemptId: deliveryAttempt._id,
+    //   });
+    // }
+
+    return updateWareHouseStatus;
   }
 
   async remove(id: string) {

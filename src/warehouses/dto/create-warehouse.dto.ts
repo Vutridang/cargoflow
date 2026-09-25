@@ -1,7 +1,4 @@
-import {
-  IsNotEmpty,
-  IsString,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateWarehouseDto {
   @IsString()
@@ -19,4 +16,8 @@ export class CreateWarehouseDto {
   @IsString()
   @IsNotEmpty()
   phone: string;
+
+  @IsString()
+  @IsOptional()
+  status?: string;
 }

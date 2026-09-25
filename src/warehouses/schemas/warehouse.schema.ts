@@ -37,9 +37,9 @@ export class Warehouse {
 
   @Prop({
     required: true,
+    type: String,
     enum: Object.values(WareHouseStatus),
     default: WareHouseStatus.ACTIVE,
-    type: String,
   })
   status: string;
 }

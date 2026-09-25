@@ -14,6 +14,7 @@ import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import { WareHouseStatus } from './schemas/warehouse.schema';
 import { ApiQuery } from '@nestjs/swagger';
+import { UpdateWareHouseStatusDto } from './dto/update-warehouse-status.dto';
 
 @Controller('warehouses')
 export class WarehousesController {
@@ -26,39 +27,39 @@ export class WarehousesController {
 
   @Get()
   @ApiQuery({
-      name: 'page',
-      required: false,
-      type: Number,
-      example: 1,
-    })
-    @ApiQuery({
-      name: 'limit',
-      required: false,
-      type: Number,
-      example: 10,
-    })
-    @ApiQuery({
-      name: 'search',
-      required: false,
-      type: String,
-    })
-    @ApiQuery({
-      name: 'sortBy',
-      required: false,
-      type: String,
-      example: 'createdAt',
-    })
-    @ApiQuery({
-      name: 'sortOrder',
-      required: false,
-      enum: ['asc', 'desc'],
-      example: 'desc',
-    })
-    @ApiQuery({
-      name: 'status',
-      required: false,
-      enum: WareHouseStatus,
-    })
+    name: 'page',
+    required: false,
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    example: 10,
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    type: String,
+    example: 'createdAt',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    enum: ['asc', 'desc'],
+    example: 'desc',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: WareHouseStatus,
+  })
   findAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -88,6 +89,17 @@ export class WarehousesController {
     @Body() updateWarehouseDto: UpdateWarehouseDto,
   ) {
     return this.warehousesService.update(id, updateWarehouseDto);
+  }
+
+  @Patch(':id/status')
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateWareHouseStatusDto: UpdateWareHouseStatusDto,
+  ) {
+    return this.warehousesService.updateStatus(
+      id,
+      updateWareHouseStatusDto.status,
+    );
   }
 
   @Delete(':id')
