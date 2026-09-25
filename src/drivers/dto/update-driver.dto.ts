@@ -1,6 +1,6 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 import { CreateDriverDto } from './create-driver.dto';
 
 export class UpdateDriverDto extends PartialType(
-  CreateDriverDto,
+  OmitType(CreateDriverDto, ['status'] as const),
 ) {}

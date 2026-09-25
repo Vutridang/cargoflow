@@ -7,7 +7,10 @@ import { Driver, DriverDocument, DriverStatus } from './schemas/driver.schema';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
 import { buildFilter } from 'src/common/helpers/filter.helper';
-import { buildPagination, buildPaginationMeta } from 'src/common/helpers/pagination.helper';
+import {
+  buildPagination,
+  buildPaginationMeta,
+} from 'src/common/helpers/pagination.helper';
 import { buildSearchFilter } from 'src/common/helpers/search.helper';
 import { buildSort } from 'src/common/helpers/sort.helper';
 
@@ -34,29 +37,24 @@ export class DriversService {
     status?: DriverStatus,
   ) {
     const filter = buildFilter({
-              status,
-              ...buildSearchFilter('driverCode', search),
-            });
-        
-            const sort = buildSort(sortBy, sortOrder);
-        
-            const { skip } = buildPagination(page, limit);
-        
-            const [driver, total] = await Promise.all([
-              this.driverModel
-                .find(filter)
-                .sort(sort)
-                .skip(skip)
-                .limit(limit)
-                .exec(),
-        
-              this.driverModel.countDocuments(filter).exec(),
-            ]);
-        
-            return {
-              data: driver,
-              meta: buildPaginationMeta(total, page, limit),
-            };
+      status,
+      ...buildSearchFilter('driverCode', search),
+    });
+
+    const sort = buildSort(sortBy, sortOrder);
+
+    const { skip } = buildPagination(page, limit);
+
+    const [driver, total] = await Promise.all([
+      this.driverModel.find(filter).sort(sort).skip(skip).limit(limit).exec(),
+
+      this.driverModel.countDocuments(filter).exec(),
+    ]);
+
+    return {
+      data: driver,
+      meta: buildPaginationMeta(total, page, limit),
+    };
   }
 
   async findOne(id: string) {
@@ -83,6 +81,20 @@ export class DriversService {
     }
 
     return await driver.save();
+  }
+
+  async updateStatus(id: string, status: DriverStatus) {
+    const driver = await this.driverModel.findById(id).exec();
+
+    if (!driver) {
+      throw new NotFoundException('Driver not found');
+    }
+
+    driver.status = status;
+
+    const updateDriverStatus = await driver.save();
+
+    return updateDriverStatus;
   }
 
   async remove(id: string) {

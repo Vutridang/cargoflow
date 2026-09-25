@@ -14,6 +14,7 @@ import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
 import { DriverStatus } from './schemas/driver.schema';
 import { ApiQuery } from '@nestjs/swagger';
+import { UpdateDriverStatusDto } from './dto/update-driver-status.dto';
 
 @Controller('drivers')
 export class DriversController {
@@ -85,6 +86,14 @@ export class DriversController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDriverDto: UpdateDriverDto) {
     return this.driversService.update(id, updateDriverDto);
+  }
+
+  @Patch(':id/status')
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateDriverStatusDto: UpdateDriverStatusDto,
+  ) {
+    return this.driversService.updateStatus(id, updateDriverStatusDto.status);
   }
 
   @Delete(':id')
