@@ -5,7 +5,7 @@ export type WarehouseDocument = HydratedDocument<Warehouse>;
 
 export enum WareHouseStatus {
   ACTIVE = 'ACTIVE',
-  UNACTIVE = 'UNACTIVE',
+  UNACTIVE = 'INACTIVE',
 }
 
 @Schema({ timestamps: true })

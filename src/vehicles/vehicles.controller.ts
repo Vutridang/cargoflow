@@ -14,6 +14,7 @@ import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { ApiQuery } from '@nestjs/swagger';
 import { VehicleStatus } from './schemas/vehicle.schema';
+import { UpdateVehicleStatusDto } from './dto/update-vehicle-status.dto';
 
 @Controller('vehicles')
 export class VehiclesController {
@@ -85,6 +86,14 @@ export class VehiclesController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateVehicleDto: UpdateVehicleDto) {
     return this.vehiclesService.update(id, updateVehicleDto);
+  }
+
+  @Patch(':id/status')
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateVehicleStatusDto: UpdateVehicleStatusDto,
+  ) {
+    return this.vehiclesService.updateStatus(id, updateVehicleStatusDto.status);
   }
 
   @Delete(':id')

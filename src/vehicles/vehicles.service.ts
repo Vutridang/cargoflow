@@ -78,6 +78,20 @@ export class VehiclesService {
     return await vehicle.save();
   }
 
+  async updateStatus(id: string, status: VehicleStatus) {
+      const vehicle = await this.vehicleModel.findById(id).exec();
+  
+      if (!vehicle) {
+        throw new NotFoundException('Vehicle not found');
+      }
+  
+      vehicle.status = status;
+  
+      const updateVehicleStatus = await vehicle.save();
+
+      return updateVehicleStatus;
+    }
+
   async remove(id: string) {
     const vehicle = await this.vehicleModel.findById(id).exec();
 
