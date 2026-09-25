@@ -3,6 +3,11 @@ import { HydratedDocument } from 'mongoose';
 
 export type WarehouseDocument = HydratedDocument<Warehouse>;
 
+export enum WareHouseStatus {
+  ACTIVE = 'ACTIVE',
+  UNACTIVE = 'UNACTIVE',
+}
+
 @Schema({ timestamps: true })
 export class Warehouse {
   @Prop({
@@ -32,7 +37,8 @@ export class Warehouse {
 
   @Prop({
     required: true,
-    default: 'ACTIVE',
+    enum: Object.values(WareHouseStatus),
+    default: WareHouseStatus.ACTIVE,
     type: String,
   })
   status: string;
