@@ -6,6 +6,7 @@ import { User, UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 
 @Injectable()
 export class UsersService {
@@ -60,6 +61,24 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async updateRole(id: string, updateUserRoleDto: UpdateUserRoleDto) {
+    const user = await this.userModel.findById(id).exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const role = await this.roleModel.findById(updateUserRoleDto.roleId).exec();
+
+    if (!role) {
+      throw new NotFoundException('Role not found');
+    }
+
+    user.roleId = new Types.ObjectId(updateUserRoleDto.roleId);
+
+    return await user.save();
   }
 
   async remove(id: string) {
