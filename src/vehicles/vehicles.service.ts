@@ -1,17 +1,15 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import {
-  Vehicle,
-  VehicleDocument,
-} from './schemas/vehicle.schema';
+import { Vehicle, VehicleDocument, VehicleStatus } from './schemas/vehicle.schema';
 
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
+import { buildFilter } from 'src/common/helpers/filter.helper';
+import { buildPagination, buildPaginationMeta } from 'src/common/helpers/pagination.helper';
+import { buildSearchFilter } from 'src/common/helpers/search.helper';
+import { buildSort } from 'src/common/helpers/sort.helper';
 
 @Injectable()
 export class VehiclesService {
@@ -24,14 +22,42 @@ export class VehiclesService {
     return await this.vehicleModel.create(createVehicleDto);
   }
 
-  async findAll() {
-    return await this.vehicleModel.find().exec();
+  async findAll(
+    page = 1,
+    limit = 10,
+    search?: string,
+    sortBy = 'createdAt',
+    sortOrder: 'asc' | 'desc' = 'desc',
+    status?: VehicleStatus,
+  ) {
+    const filter = buildFilter({
+          status,
+          ...buildSearchFilter('vehicleCode', search),
+        });
+    
+        const sort = buildSort(sortBy, sortOrder);
+    
+        const { skip } = buildPagination(page, limit);
+    
+        const [vehicle, total] = await Promise.all([
+          this.vehicleModel
+            .find(filter)
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .exec(),
+    
+          this.vehicleModel.countDocuments(filter).exec(),
+        ]);
+    
+        return {
+          data: vehicle,
+          meta: buildPaginationMeta(total, page, limit),
+        };
   }
 
   async findOne(id: string) {
-    const vehicle = await this.vehicleModel
-      .findById(id)
-      .exec();
+    const vehicle = await this.vehicleModel.findById(id).exec();
 
     if (!vehicle) {
       throw new NotFoundException('Vehicle not found');
@@ -40,13 +66,8 @@ export class VehiclesService {
     return vehicle;
   }
 
-  async update(
-    id: string,
-    updateVehicleDto: UpdateVehicleDto,
-  ) {
-    const vehicle = await this.vehicleModel
-      .findById(id)
-      .exec();
+  async update(id: string, updateVehicleDto: UpdateVehicleDto) {
+    const vehicle = await this.vehicleModel.findById(id).exec();
 
     if (!vehicle) {
       throw new NotFoundException('Vehicle not found');
@@ -58,9 +79,7 @@ export class VehiclesService {
   }
 
   async remove(id: string) {
-    const vehicle = await this.vehicleModel
-      .findById(id)
-      .exec();
+    const vehicle = await this.vehicleModel.findById(id).exec();
 
     if (!vehicle) {
       throw new NotFoundException('Vehicle not found');
