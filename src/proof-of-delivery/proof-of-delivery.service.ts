@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import {
   ProofOfDelivery,
@@ -28,7 +28,10 @@ export class ProofOfDeliveriesService {
     private readonly deliveryAttemptModel: Model<DeliveryAttemptDocument>,
   ) {}
 
-  async create(deliveryAttemptId: string, createProodOfDeliveryDto: CreateProofOfDeliveryDto) {
+  async create(
+    deliveryAttemptId: string,
+    createProodOfDeliveryDto: CreateProofOfDeliveryDto,
+  ) {
     const deliveryAttempt = await this.deliveryAttemptModel
       .findById(deliveryAttemptId)
       .exec();
@@ -67,6 +70,27 @@ export class ProofOfDeliveriesService {
       ),
       deliveredAt,
     });
+  }
+
+  async findByDeliveryAttemptId(deliveryAttemptId: string) {
+    const deliveryAttempt = await this.deliveryAttemptModel
+      .findById(deliveryAttemptId)
+      .exec();
+
+    if (!deliveryAttempt) {
+      throw new NotFoundException('Delivery attempt not found');
+    }
+
+    const proofOfDelivery = await this.proofOfDeliveryModel
+      .find({ deliveryAttemptId: new Types.ObjectId(deliveryAttemptId) })
+      .sort({ createdAt: -1 })
+      .exec();
+
+    if (!proofOfDelivery) {
+      throw new NotFoundException('Proof Of Delivery not found');
+    }
+
+    return proofOfDelivery;
   }
 
   async update(id: string, updateProodOfDeliveryDto: UpdateProofOfDeliveryDto) {
