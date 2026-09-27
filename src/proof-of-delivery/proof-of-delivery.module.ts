@@ -8,7 +8,10 @@ import {
   ProofOfDelivery,
   ProofOfDeliverySchema,
 } from './schemas/proof-of-delivery.schema';
-import { DeliveryAttempt, DeliveryAttemptSchema } from 'src/delivery-attempts/schemas/delivery-attempt.schema';
+import {
+  DeliveryAttempt,
+  DeliveryAttemptSchema,
+} from 'src/delivery-attempts/schemas/delivery-attempt.schema';
 
 @Module({
   imports: [
@@ -25,5 +28,6 @@ import { DeliveryAttempt, DeliveryAttemptSchema } from 'src/delivery-attempts/sc
   ],
   controllers: [ProofOfDeliveriesController],
   providers: [ProofOfDeliveriesService],
+  exports: [ProofOfDeliveriesService],
 })
 export class ProofOfDeliveriesModule {}

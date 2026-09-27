@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, Delete } from '@nestjs/common';
 
 import { DeliveryAttemptsService } from './delivery-attempts.service';
 
@@ -24,7 +24,9 @@ export class DeliveryAttemptsController {
 
   @Get('shipment/:shipmentId')
   findByShipmentId(@Param('shipmentId') shipmentId: string) {
-    return this.deliveryAttemptsService.findByShipmentId(new Types.ObjectId(shipmentId),);
+    return this.deliveryAttemptsService.findByShipmentId(
+      new Types.ObjectId(shipmentId),
+    );
   }
 
   @Patch(':id/status')
@@ -35,6 +37,13 @@ export class DeliveryAttemptsController {
     return this.deliveryAttemptsService.updateStatus(
       id,
       updateStatusDto.status,
+    );
+  }
+
+  @Delete('shipment/:shipmentId')
+  deleteByShipmentId(@Param('shipmentId') shipmentId: string) {
+    return this.deliveryAttemptsService.deleteByShipmentId(
+      shipmentId,
     );
   }
 }

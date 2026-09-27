@@ -114,4 +114,10 @@ export class ProofOfDeliveriesService {
 
     return await proofOfDelivery.save();
   }
+
+  async deleteByDeliveryAttempt(deliveryAttemptId: Types.ObjectId) {
+    return await this.proofOfDeliveryModel.deleteOne({
+      deliveryAttemptId,
+    });
+  }
 }

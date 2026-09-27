@@ -20,6 +20,7 @@ import {
 
 import { CreateDeliveryAttemptDto } from './dto/create-delivery-attempt.dto';
 import { ProofOfDeliveryDocument } from 'src/proof-of-delivery/schemas/proof-of-delivery.schema';
+import { ProofOfDeliveriesService } from 'src/proof-of-delivery/proof-of-delivery.service';
 
 @Injectable()
 export class DeliveryAttemptsService {
@@ -32,6 +33,8 @@ export class DeliveryAttemptsService {
 
     @InjectModel(Shipment.name)
     private readonly proofOfDeliveryModel: Model<ProofOfDeliveryDocument>,
+
+    private readonly proofOfDeliveryService: ProofOfDeliveriesService,
   ) {}
 
   async create(createDeliveryAttemptDto: CreateDeliveryAttemptDto) {
@@ -98,5 +101,29 @@ export class DeliveryAttemptsService {
     // }
 
     return updatedDeliveryAttempt;
+  }
+
+  async deleteByShipmentId(shipmentId: string) {
+    if (!shipmentId) {
+      throw new NotFoundException('Shipment not found');
+    }
+
+    const deliveryAttempts = await this.deliveryAttemptModel.find({
+      shipmentId: new Types.ObjectId(shipmentId),
+    });
+
+    const deliveryAttemptId = deliveryAttempts.find(
+      (attempt) => attempt.status === DeliveryAttemptStatus.SUCCESS,
+    )?._id;
+
+    if (deliveryAttemptId) {
+      await this.proofOfDeliveryService.deleteByDeliveryAttempt(
+        deliveryAttemptId,
+      );
+    }
+
+    return await this.deliveryAttemptModel.deleteMany({
+      shipmentId: new Types.ObjectId(shipmentId),
+    });
   }
 }
