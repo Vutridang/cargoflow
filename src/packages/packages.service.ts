@@ -23,6 +23,10 @@ import {
 import { CreatePackageDto } from './dto/create-package.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
 import { validateShipmentEditable } from 'src/common/helpers/shipment-status.helper';
+import { buildFilter } from 'src/common/helpers/filter.helper';
+import { buildPagination, buildPaginationMeta } from 'src/common/helpers/pagination.helper';
+import { buildSearchFilter } from 'src/common/helpers/search.helper';
+import { buildSort } from 'src/common/helpers/sort.helper';
 
 @Injectable()
 export class PackagesService {
@@ -67,8 +71,36 @@ export class PackagesService {
     return await packageItem.save();
   }
 
-  async findAll() {
-    return await this.packageModel.find().exec();
+  async findAll(
+    page = 1,
+    limit = 10,
+    search?: string,
+    sortBy = 'createdAt',
+    sortOrder: 'asc' | 'desc' = 'desc',
+  ) {
+    const filter = buildFilter({
+      ...buildSearchFilter('name', search),
+    });
+
+    const sort = buildSort(sortBy, sortOrder);
+
+    const { skip } = buildPagination(page, limit);
+
+    const [package_item, total] = await Promise.all([
+      this.packageModel
+        .find(filter)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+
+      this.packageModel.countDocuments().exec(),
+    ]);
+
+    return {
+      data: package_item,
+      meta: buildPaginationMeta(total, page, limit),
+    };
   }
 
   async findOne(id: string) {
