@@ -48,14 +48,14 @@ export class TripsService {
 
     const { skip } = buildPagination(page, limit);
 
-    const [shipments, total] = await Promise.all([
+    const [trip, total] = await Promise.all([
       this.tripModel.find(filter).sort(sort).skip(skip).limit(limit).exec(),
 
       this.tripModel.countDocuments().exec(),
     ]);
 
     return {
-      data: shipments,
+      data: trip,
       meta: buildPaginationMeta(total, page, limit),
     };
   }

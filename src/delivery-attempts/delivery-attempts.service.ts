@@ -21,6 +21,10 @@ import {
 import { CreateDeliveryAttemptDto } from './dto/create-delivery-attempt.dto';
 import { ProofOfDeliveryDocument } from 'src/proof-of-delivery/schemas/proof-of-delivery.schema';
 import { ProofOfDeliveriesService } from 'src/proof-of-delivery/proof-of-delivery.service';
+import { buildFilter } from 'src/common/helpers/filter.helper';
+import { buildPagination, buildPaginationMeta } from 'src/common/helpers/pagination.helper';
+import { buildSearchFilter } from 'src/common/helpers/search.helper';
+import { buildSort } from 'src/common/helpers/sort.helper';
 
 @Injectable()
 export class DeliveryAttemptsService {
@@ -60,8 +64,33 @@ export class DeliveryAttemptsService {
     return await deliveryAttempt.save();
   }
 
-  async findAll() {
-    return await this.deliveryAttemptModel.find().exec();
+  async findAll(
+    page = 1,
+    limit = 10,
+    search?: string,
+    sortBy = 'createdAt',
+    sortOrder: 'asc' | 'desc' = 'desc',
+    status?: DeliveryAttemptStatus,
+  ) {
+    const filter = buildFilter({
+          status,
+          ...buildSearchFilter('shipmentCode', search),
+        });
+    
+        const sort = buildSort(sortBy, sortOrder);
+    
+        const { skip } = buildPagination(page, limit);
+    
+        const [deliveryAttempt, total] = await Promise.all([
+          this.deliveryAttemptModel.find(filter).sort(sort).skip(skip).limit(limit).exec(),
+    
+          this.deliveryAttemptModel.countDocuments().exec(),
+        ]);
+    
+        return {
+          data: deliveryAttempt,
+          meta: buildPaginationMeta(total, page, limit),
+        };
   }
 
   async findByShipmentId(shipmentId: Types.ObjectId) {
