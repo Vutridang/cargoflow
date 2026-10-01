@@ -126,4 +126,28 @@ export class DeliveryAttemptsService {
       shipmentId: new Types.ObjectId(shipmentId),
     });
   }
+
+  // async deleteByShipmentId(shipmentId: Types.ObjectId) {
+  //   if (!shipmentId) {
+  //     throw new NotFoundException('Shipment not found');
+  //   }
+
+  //   const deliveryAttempts = await this.deliveryAttemptModel.find({
+  //     shipmentId,
+  //   });
+
+  //   const deliveryAttemptId = deliveryAttempts.find(
+  //     (attempt) => attempt.status === DeliveryAttemptStatus.SUCCESS,
+  //   )?._id;
+
+  //   if (deliveryAttemptId) {
+  //     await this.proofOfDeliveryService.deleteByDeliveryAttempt(
+  //       deliveryAttemptId,
+  //     );
+  //   }
+
+  //   return await this.deliveryAttemptModel.deleteMany({
+  //     shipmentId,
+  //   });
+  // }
 }

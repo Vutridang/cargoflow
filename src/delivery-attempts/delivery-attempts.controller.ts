@@ -46,4 +46,12 @@ export class DeliveryAttemptsController {
       shipmentId,
     );
   }
+
+  // @Delete('shipment/:shipmentId')
+  // deleteByShipmentId(@Param('shipmentId') shipmentId: string) {
+  //   return this.deliveryAttemptsService.deleteByShipmentId(
+  //     //shipmentId,
+  //     new Types.ObjectId(shipmentId)
+  //   );
+  // }
 }

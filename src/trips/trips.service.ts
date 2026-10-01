@@ -8,6 +8,13 @@ import { Model, Types } from 'mongoose';
 import { Trip, TripDocument, TripStatus } from './schemas/trip.schema';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
+import { buildFilter } from 'src/common/helpers/filter.helper';
+import {
+  buildPagination,
+  buildPaginationMeta,
+} from 'src/common/helpers/pagination.helper';
+import { buildSearchFilter } from 'src/common/helpers/search.helper';
+import { buildSort } from 'src/common/helpers/sort.helper';
 
 @Injectable()
 export class TripsService {
@@ -24,8 +31,33 @@ export class TripsService {
     });
   }
 
-  async findAll() {
-    return await this.tripModel.find().exec();
+  async findAll(
+    page = 1,
+    limit = 10,
+    search?: string,
+    sortBy = 'createdAt',
+    sortOrder: 'asc' | 'desc' = 'desc',
+    status?: TripStatus,
+  ) {
+    const filter = buildFilter({
+      status,
+      ...buildSearchFilter('tripCode', search),
+    });
+
+    const sort = buildSort(sortBy, sortOrder);
+
+    const { skip } = buildPagination(page, limit);
+
+    const [shipments, total] = await Promise.all([
+      this.tripModel.find(filter).sort(sort).skip(skip).limit(limit).exec(),
+
+      this.tripModel.countDocuments().exec(),
+    ]);
+
+    return {
+      data: shipments,
+      meta: buildPaginationMeta(total, page, limit),
+    };
   }
 
   async findOne(id: string) {
